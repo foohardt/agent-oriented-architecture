@@ -1,8 +1,9 @@
 from abc import abstractmethod
 from asyncio import Queue
 
-from .agent import Agent
 from knowledge import KnowledgeBase
+
+from .agent import Agent
 
 
 class CognitiveAgent(Agent):

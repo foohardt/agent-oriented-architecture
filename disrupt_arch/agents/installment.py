@@ -1,6 +1,7 @@
+import logging
+
 from .base import CognitiveAgent
 
-import logging
 
 class InstallmentPlanAgent(CognitiveAgent):
     def __init__(self, name, input_queue, knowledge_base, agent_registry):

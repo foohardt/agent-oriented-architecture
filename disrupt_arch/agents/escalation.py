@@ -1,6 +1,7 @@
+import logging
+
 from .base import OperationalAgent
 
-import logging
 
 class EscalationAgent(OperationalAgent):
     def __init__(self, name, input_queue, agent_registry):

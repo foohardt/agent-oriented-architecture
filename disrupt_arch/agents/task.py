@@ -1,9 +1,20 @@
-from .base import CognitiveAgent
-
 import logging
+from asyncio import Queue
+
+from knowledge import KnowledgeBase
+
+from .base import CognitiveAgent
+from .registry import AgentRegistry
+
 
 class TaskAgent(CognitiveAgent):
-    def __init__(self, name, queue, knowledge_base, agent_registry):
+    def __init__(
+        self,
+        name: str,
+        queue: Queue,
+        knowledge_base: KnowledgeBase,
+        agent_registry: AgentRegistry,
+    ):
         super().__init__(name, queue, knowledge_base)
         self.agent_registry = agent_registry
 

@@ -8,6 +8,7 @@ from knowledge import KnowledgeBase
 
 logging.basicConfig(level=logging.INFO)
 
+
 async def main():
     try:
         # Initialize shared components
@@ -52,8 +53,9 @@ async def main():
         )
 
         # Start agents
-        asyncio.gather(task_agent.run(), escalation_agent.run(),
-                       installment_agent.run())
+        asyncio.gather(
+            task_agent.run(), escalation_agent.run(), installment_agent.run()
+        )
 
         # Simulate a debtor profile
         debtor_profile = {
@@ -63,7 +65,7 @@ async def main():
         }
 
         await task_queue.put(debtor_profile)
-    
+
     except Exception as e:
         logging.error(f"A main exception occurred: {e}")
 
