@@ -2,7 +2,7 @@ import logging
 
 from .base import CognitiveAgent
 from knowledge import KnowledgeBase
-from registry import AgentRegistry
+from .registry import AgentRegistry
 
 
 class InstallmentPlanAgent(CognitiveAgent):

@@ -2,7 +2,7 @@ from asyncio import Queue
 import logging
 
 from .base import OperationalAgent
-from registry import AgentRegistry
+from .registry import AgentRegistry
 
 
 class EscalationAgent(OperationalAgent):

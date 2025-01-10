@@ -23,7 +23,7 @@ rules = [
 ]
 
 
-def seed_bussines_ules():
+def seed_busines_ules():
     global rules
 
     collection = chroma_client.get_or_create_collection(
@@ -45,7 +45,7 @@ def seed_bussines_ules():
 def seed_knowledge_base():
     """Seed the knowledge base with initial information."""
     try:
-        seed_bussines_ules()
+        seed_busines_ules()
     except Exception as e:
         logging.error(f"Error seeding knowledge base: {e}")
 

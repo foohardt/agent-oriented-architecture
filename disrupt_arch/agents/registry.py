@@ -1,6 +1,5 @@
 from asyncio import Queue
 
-
 class AgentRegistry:
     def __init__(self):
         self.registry = {}
@@ -16,6 +15,6 @@ class AgentRegistry:
         if queue not in self.registry[task]:
             self.registry[task].append(queue)
 
-    def get_agents_for_task(self, task):
+    def get_agents_for_task(self, task) -> list[Queue]:
         """Retrieves queues capable of handling the task."""
         return self.registry.get(task, [])

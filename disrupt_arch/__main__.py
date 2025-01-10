@@ -5,6 +5,7 @@ from agents import AgentRegistry, EscalationAgent, InstallmentPlanAgent, TaskAge
 from chromadb.utils import embedding_functions
 from config import chroma_client
 from knowledge import KnowledgeBase
+from models import DebtorProfile
 
 logging.basicConfig(level=logging.INFO)
 
@@ -58,12 +59,15 @@ async def main():
         )
 
         # Simulate a debtor profile
-        debtor_profile = {
-            "risk_level": "high",
-            "overdue_days": 120,
-            "outstanding_balance": 2000,
-        }
 
+        debtor_profile = DebtorProfile(
+            communication_state="NO_RESPONSE",
+            income=50000,
+            risk_level="high",
+            overdue_days=120,
+            outstanding_balance=2000.0,
+            name="John Doe",
+        )
         await task_queue.put(debtor_profile)
 
     except Exception as e:
