@@ -1,8 +1,11 @@
+from asyncio import Queue
+
+
 class AgentRegistry:
     def __init__(self):
         self.registry = {}
 
-    def register(self, task, queue):
+    def register(self, task, queue: Queue):
         """
         Registers a task and its associated queue. Ensures no duplicate registrations.
         :param task: The task type (e.g., "escalate").
