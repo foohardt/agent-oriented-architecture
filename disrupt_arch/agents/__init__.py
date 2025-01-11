@@ -4,5 +4,10 @@ from .registry import AgentRegistry
 from .risk import RiskAssessmentAgent
 from .task import TaskAgent
 
-__all__ = ["AgentRegistry", "EscalationAgent",
-           "InstallmentPlanAgent", "RiskAssessmentAgent", "TaskAgent"]
+__all__ = [
+    "AgentRegistry",
+    "EscalationAgent",
+    "InstallmentPlanAgent",
+    "RiskAssessmentAgent",
+    "TaskAgent",
+]

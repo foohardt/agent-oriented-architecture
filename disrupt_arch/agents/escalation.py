@@ -1,5 +1,5 @@
-from asyncio import Queue
 import logging
+from asyncio import Queue
 
 from .base import OperationalAgent
 from .registry import AgentRegistry

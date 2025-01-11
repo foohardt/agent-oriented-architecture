@@ -1,4 +1,5 @@
 from enum import Enum
+
 from pydantic import BaseModel
 
 
@@ -13,10 +14,16 @@ class RiskLevel(str, Enum):
     HIGH = "HIGH"
 
 
+class InstallmentPlan(BaseModel):
+    monthly_payment: float
+    duration_months: int
+
+
 class DebtorProfile(BaseModel):
     communication_state: str
     name: str
     income: float
+    installment_plan: InstallmentPlan | None
     outstanding_balance: float
     overdue_days: int
     risk_level: str | None

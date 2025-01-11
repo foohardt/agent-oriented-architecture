@@ -1,7 +1,13 @@
 import asyncio
 import logging
 
-from agents import AgentRegistry, EscalationAgent, InstallmentPlanAgent, RiskAssessmentAgent, TaskAgent
+from agents import (
+    AgentRegistry,
+    EscalationAgent,
+    InstallmentPlanAgent,
+    RiskAssessmentAgent,
+    TaskAgent,
+)
 from chromadb.utils import embedding_functions
 from config import chroma_client
 from knowledge import KnowledgeBase
@@ -18,12 +24,12 @@ async def main():
         # Define queues
         task_queue = asyncio.Queue()
         escalation_queue = asyncio.Queue()
-        payment_queue = asyncio.Queue()
         risk_assessment_queue = asyncio.Queue()
+        installment_plan_queue = asyncio.Queue()
 
         # Register queues with the registry
         agent_registry.register("escalate", escalation_queue)
-        agent_registry.register("payment_plan", payment_queue)
+        agent_registry.register("installment_plan", installment_plan_queue)
 
         # Define agents
         task_agent = TaskAgent(
@@ -40,7 +46,7 @@ async def main():
 
         installment_agent = InstallmentPlanAgent(
             "InstallmentPlanAgent",
-            payment_queue,
+            installment_plan_queue,
             KnowledgeBase(
                 chroma_client.get_collection(
                     "business_rules",
@@ -58,16 +64,17 @@ async def main():
             "RiskAssessmentAgent", risk_assessment_queue, agent_registry
         )
 
-        # Start agents
         asyncio.gather(
-            task_agent.run(), escalation_agent.run(), installment_agent.run(), risk_assessment_agent.run()
+            task_agent.run(),
+            escalation_agent.run(),
+            installment_agent.run(),
+            risk_assessment_agent.run(),
         )
-
-        # Simulate a debtor profile
 
         debtor_profile = DebtorProfile(
             communication_state="NO_RESPONSE",
             income=50000,
+            installment_plan=None,
             risk_level=None,
             overdue_days=120,
             outstanding_balance=2000.0,

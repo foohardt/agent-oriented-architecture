@@ -1,6 +1,6 @@
+import logging
 from abc import ABC, abstractmethod
 from asyncio import CancelledError, Queue
-import logging
 
 from models import DebtorProfile
 
@@ -23,14 +23,14 @@ class Agent(ABC):
     async def publish_message(self, queues: list[Queue] | None, entity: DebtorProfile):
         """Publish message in target queues."""
         if not queues:
-            logging.warning(
-                f"{self.name}: No agents available for target queue.")
+            logging.warning(f"{self.name}: No agents available for target queue.")
             return
 
         for queue in queues:
             await queue.put(entity)
-            logging.info(f"{self.name} published profile {
-                         entity.name} in queue {queue}.")
+            logging.info(
+                f"{self.name} published profile {entity.name} in queue {queue}."
+            )
 
     async def run(self):
         """Starts the event loop for the agent."""
@@ -38,9 +38,9 @@ class Agent(ABC):
             while True:
                 message = await self.queue.get()
                 logging.info(
-                    f"{self.name} retrieved a message from the queue: {message}")
+                    f"{self.name} retrieved a message from the queue: {message}"
+                )
                 await self.process_message(message)
                 self.queue.task_done()
         except CancelledError:
-            logging.error(f"A CancelledError occured. {
-                          self.name} is shutting down.")
+            logging.error(f"A CancelledError occured. {self.name} is shutting down.")

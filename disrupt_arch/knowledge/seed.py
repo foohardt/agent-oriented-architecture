@@ -18,10 +18,26 @@ rules = [
     },
     {
         "description": "If risk level is Moderate and overdue days are between 60 and 120, escalate case.",
-        "metadata": {"action": "escalate_case", "target": "LegalAgent"},
+        "metadata": {"action": "installment_plan", "target": "InstallmentPlanAgent"},
     },
     {
         "description": "If risk level is Low, contact the debtor directly with a payment plan.",
+        "metadata": {"action": "installment_plan", "target": "InstallmentPlanAgent"},
+    },
+    {
+        "description": """"
+        To calculate the monthly payment for a debtor:
+
+        First, determine the payment duration based on the risk level:
+            If the risk is High, spread the balance over 12 months.
+            If the risk is Moderate, spread the balance over 6 months.
+            Otherwise (for Low risk), spread the balance over 3 months.
+
+        Then, calculate the monthly payment as the smaller of:
+            The balance divided by the selected duration in months.
+            20% of the debtor's monthly income.
+
+        Finally, calculate the total duration in months by dividing the balance by the determined monthly payment and converting the result into an integer.""",
         "metadata": {"action": "contact_debtor", "target": "CommunicationAgent"},
     },
 ]

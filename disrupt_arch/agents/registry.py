@@ -1,5 +1,6 @@
 from asyncio import Queue
 
+
 class AgentRegistry:
     def __init__(self):
         self.registry = {}

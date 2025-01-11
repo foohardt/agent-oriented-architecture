@@ -1,10 +1,10 @@
-from asyncio import Queue
 import logging
+from asyncio import Queue
+
+from models import DebtorProfile, RiskLevel
 
 from .base import OperationalAgent
 from .registry import AgentRegistry
-
-from models import DebtorProfile, RiskLevel
 
 
 class RiskAssessmentAgent(OperationalAgent):
@@ -16,8 +16,11 @@ class RiskAssessmentAgent(OperationalAgent):
     async def process_message(self, entity: DebtorProfile):
         risk_level = await self.execute_task(entity)
         entity.risk_level = risk_level.value
-        logging.info(f"{self.name} assessed risk as: {
-                     entity.risk_level} for profile: {entity.name}")
+        logging.info(
+            f"{self.name} assessed risk as: {entity.risk_level} for profile: {
+                entity.name
+            }"
+        )
         target_queues = self.agent_registry.get_agents_for_task("next_action")
         await self.publish_message(target_queues, entity)
 

@@ -2,10 +2,11 @@ import logging
 from asyncio import Queue
 
 from config import openai_client
-from .base import CognitiveAgent
 from knowledge import KnowledgeBase
-from .registry import AgentRegistry
 from models import DebtorProfile, NextBestAction
+
+from .base import CognitiveAgent
+from .registry import AgentRegistry
 
 
 class TaskAgent(CognitiveAgent):
@@ -23,18 +24,18 @@ class TaskAgent(CognitiveAgent):
     async def process_message(self, entity: DebtorProfile):
         logging.info(f"{self.name} received profile: {entity}")
         rules = await self.retrieve(entity)
-        
+
         next_action = await self.reason(entity, rules)
         logging.info(f"{self.name} decided next action: {next_action}")
-        
+
         target_queues = self.agent_registry.get_agents_for_task(next_action.action)
         await self.publish_message(target_queues, entity)
-
 
     async def retrieve(self, entity: DebtorProfile):
         try:
             query = f"Risk level is {entity.risk_level} and overdue days is {
-                entity.overdue_days}."
+                entity.overdue_days
+            }."
             rules = await self.query_knowledge(query)
             return rules
         except Exception as e:
@@ -62,14 +63,4 @@ class TaskAgent(CognitiveAgent):
 
             return next_action
         except Exception as e:
-            raise RuntimeError(f"Failed to generate decision: {e}")
-
-    async def delegate_task(self, action: NextBestAction, entity: DebtorProfile):
-        target_queues = self.agent_registry.get_agents_for_task(action.action)
-        if not target_queues:
-            logging.info(
-                f"{self.name}: No agents available for task '{action}'.")
-            return
-        for queue in target_queues:
-            await queue.put(entity)
-            logging.info(f"{self.name} delegated profile to queue.")
+            logging.error(f"Error reasoning next best action: {e}")
