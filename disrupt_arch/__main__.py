@@ -3,6 +3,7 @@ import logging
 
 from agents import (
     AgentRegistry,
+    CommunicationAgent,
     EscalationAgent,
     InstallmentPlanAgent,
     RiskAssessmentAgent,
@@ -26,6 +27,7 @@ async def main():
         escalation_queue = asyncio.Queue()
         risk_assessment_queue = asyncio.Queue()
         installment_plan_queue = asyncio.Queue()
+        debtor_communication_queue = asyncio.Queue()
 
         # Register queues with the registry
         agent_registry.register("escalate", escalation_queue)
@@ -56,6 +58,18 @@ async def main():
             agent_registry,
         )
 
+        communication_agent = CommunicationAgent(
+            "CommunicationAgent",
+            debtor_communication_queue,
+            KnowledgeBase(
+                chroma_client.get_collection(
+                    "business_rules",
+                    embedding_function=embedding_functions.DefaultEmbeddingFunction(),
+                )
+            ),
+            agent_registry,
+        )
+
         escalation_agent = EscalationAgent(
             "EscalationAgent", escalation_queue, agent_registry
         )
@@ -69,6 +83,7 @@ async def main():
             escalation_agent.run(),
             installment_agent.run(),
             risk_assessment_agent.run(),
+            communication_agent.run(),
         )
 
         debtor_profile = DebtorProfile(
