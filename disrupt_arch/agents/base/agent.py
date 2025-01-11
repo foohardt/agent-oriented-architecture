@@ -36,7 +36,11 @@ class Agent(ABC):
         """Starts the event loop for the agent."""
         try:
             while True:
-                profile = await self.queue.get()
-                await self.process_message(profile)
+                message = await self.queue.get()
+                logging.info(
+                    f"{self.name} retrieved a message from the queue: {message}")
+                await self.process_message(message)
+                self.queue.task_done()
         except CancelledError:
-            logging.info(f"{self.name} is shutting down. All tasks processed.")
+            logging.error(f"A CancelledError occured. {
+                          self.name} is shutting down.")

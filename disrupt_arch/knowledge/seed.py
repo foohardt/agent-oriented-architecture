@@ -9,6 +9,10 @@ default_ef = embedding_functions.DefaultEmbeddingFunction()
 
 rules = [
     {
+        "description": "If risk level is None request risk assessment",
+        "metadata": {"action": "assess_risk", "target": "RiskAssessmentAgent"},
+    },
+    {
         "description": "If overdue days > 120 and risk level is High, escalate case.",
         "metadata": {"action": "escalate_case", "target": "LegalAgent"},
     },
