@@ -10,8 +10,9 @@ class EscalationAgent(OperationalAgent):
         super().__init__(name, queue)
         agent_registry.register("escalate", queue)
 
-    async def process_message(self, profile):
-        logging.info(f"{self.name} is escalating profile: {profile}")
+    async def process_message(self, entity):
+        logging.info(f"{self.name} received profile: {entity}")
+        self.execute_task(entity)
 
     async def execute_task(self, task):
         logging.info(f"{self.name}: Executing escalation task {task}")
