@@ -1,8 +1,8 @@
 import asyncio
 import unittest
-from models import DebtorProfile
-from agents.base.agent import Agent
 
+from agents.base.agent import Agent
+from models import DebtorProfile
 
 
 class TestAgent(Agent):
@@ -13,6 +13,7 @@ class TestAgent(Agent):
     async def process_message(self, profile: DebtorProfile):
         """Mock implementation of the abstract method."""
         self.processed_messages.append(profile)
+
 
 class TestAgentBase(unittest.IsolatedAsyncioTestCase):
     async def test_run_processes_messages(self):
@@ -32,7 +33,7 @@ class TestAgentBase(unittest.IsolatedAsyncioTestCase):
         await test_queue.put(profile)
 
         task = asyncio.create_task(agent.run())
-        await asyncio.sleep(0.1) 
+        await asyncio.sleep(0.1)
         task.cancel()
 
         self.assertIn(profile, agent.processed_messages)

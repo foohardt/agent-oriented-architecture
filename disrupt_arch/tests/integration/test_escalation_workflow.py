@@ -1,11 +1,12 @@
 import asyncio
 import unittest
 from unittest.mock import MagicMock
-from agents import AgentRegistry, EscalationAgent,TaskAgent, RiskAssessmentAgent
+
+from agents import AgentRegistry, EscalationAgent, RiskAssessmentAgent, TaskAgent
+from chromadb.utils import embedding_functions
+from config import chroma_client
 from knowledge import KnowledgeBase
 from models import DebtorProfile
-from config import chroma_client
-from chromadb.utils import embedding_functions
 
 
 class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
@@ -16,21 +17,19 @@ class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
 
         escalation_queue = asyncio.Queue()
 
-
         agent_registry.register("escalate_case", escalation_queue)
-
 
         task_agent = TaskAgent(
             "TaskAgent",
             task_queue,
-                        KnowledgeBase(
+            KnowledgeBase(
                 chroma_client.get_collection(
                     "business_rules",
                     embedding_function=embedding_functions.DefaultEmbeddingFunction(),
                 )
             ),
-            agent_registry)
-
+            agent_registry,
+        )
 
         escalation_agent = EscalationAgent(
             "EscalationAgent", escalation_queue, agent_registry
@@ -40,7 +39,6 @@ class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
         risk_assessment_agent = RiskAssessmentAgent(
             "RiskAssessmentAgent", risk_queue, agent_registry
         )
-
 
         agent_tasks = [
             asyncio.create_task(task_agent.run()),
@@ -56,7 +54,7 @@ class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
             outstanding_balance=2000.0,
             overdue_days=130,
             risk_level=None,
-        )       
+        )
 
         await task_queue.put(profile)
 

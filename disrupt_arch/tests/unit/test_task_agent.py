@@ -1,6 +1,7 @@
 import asyncio
 import unittest
 from unittest.mock import AsyncMock, MagicMock
+
 from agents import TaskAgent
 from models import DebtorProfile, NextBestAction
 
@@ -13,8 +14,15 @@ class TestTaskAgent(unittest.IsolatedAsyncioTestCase):
         mock_knowledge_base.query_knowledge.return_value = "Rule 1, Rule 2"
         mock_openai_client = MagicMock()
         mock_openai_client.beta.chat.completions.parse.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(parsed=NextBestAction(
-                action="escalate", target="EscalationAgent")))]
+            choices=[
+                MagicMock(
+                    message=MagicMock(
+                        parsed=NextBestAction(
+                            action="escalate", target="EscalationAgent"
+                        )
+                    )
+                )
+            ]
         )
 
         task_queue = asyncio.Queue()
@@ -37,8 +45,9 @@ class TestTaskAgent(unittest.IsolatedAsyncioTestCase):
         await task_queue.put(profile)
 
         agent.retrieve = AsyncMock(return_value="Rule 1, Rule 2")
-        agent.reason = AsyncMock(return_value=NextBestAction(
-            action="escalate", target="EscalationAgent"))
+        agent.reason = AsyncMock(
+            return_value=NextBestAction(action="escalate", target="EscalationAgent")
+        )
 
         task = asyncio.create_task(agent.run())
         await asyncio.sleep(0.1)
