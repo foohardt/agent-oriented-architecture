@@ -10,7 +10,7 @@ from models import DebtorProfile
 
 
 class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
-    async def test_task_to_risk_assessment_flow(self):
+    async def test_escalation_workflow(self):
         agent_registry = AgentRegistry()
         task_queue = asyncio.Queue()
         risk_queue = asyncio.Queue()

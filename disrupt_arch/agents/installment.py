@@ -60,7 +60,7 @@ class InstallmentPlanAgent(CognitiveAgent):
             installment_plan = completion.choices[0].message.parsed
 
             return {
-                "action": "communicate_debtor",
+                "action": "contact_debtor",
                 "installment_plan": installment_plan,
             }
         except Exception as e:

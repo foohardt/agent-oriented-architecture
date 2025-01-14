@@ -19,11 +19,10 @@ class CommunicationAgent(CognitiveAgent):
     ):
         super().__init__(name, queue, knowledge_base)
         self.agent_registry = agent_registry
-        self.agent_registry.register("communicate_debtor", queue)
+        self.agent_registry.register("contact_debtor", queue)
 
     async def process_message(self, entity: DebtorProfile):
         logging.info(f"{self.name} received profile: {entity}")
-
         result = await self.reason(entity)
         logging.info(f"{self.name} created message for {entity.name}: {result}")
 
@@ -47,4 +46,4 @@ class CommunicationAgent(CognitiveAgent):
 
             return message
         except Exception as e:
-            logging.error(f"Error reasoning next best action: {e}")
+            logging.error(f"Error reasoning debtor communication: {e}")
