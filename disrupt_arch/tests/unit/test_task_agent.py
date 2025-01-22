@@ -45,7 +45,7 @@ class TestTaskAgent(unittest.IsolatedAsyncioTestCase):
         await task_queue.put(profile)
 
         agent.retrieve = AsyncMock(return_value="Rule 1, Rule 2")
-        agent.reason = AsyncMock(
+        agent.reason_structured = AsyncMock(
             return_value=NextBestAction(action="escalate", target="EscalationAgent")
         )
 
@@ -54,5 +54,9 @@ class TestTaskAgent(unittest.IsolatedAsyncioTestCase):
         task.cancel()
 
         agent.retrieve.assert_awaited_once_with(profile)
-        agent.reason.assert_awaited_once_with(profile, "Rule 1, Rule 2")
+        agent.reason_structured.assert_awaited_once_with(
+            content=f"debtor profile: {profile}, business rules: Rule 1, Rule 2",
+            response_format=NextBestAction,
+            task=agent.task,
+        )
         mock_registry.get_agents_for_task.assert_called_with("escalate")

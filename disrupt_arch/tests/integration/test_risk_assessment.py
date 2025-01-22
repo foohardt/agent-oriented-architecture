@@ -9,7 +9,7 @@ from knowledge import KnowledgeBase
 from models import DebtorProfile
 
 
-class TestRiskAssessmentWorkflow(unittest.IsolatedAsyncioTestCase):
+class TestRiskAssessmentWorkflowWorkflow(unittest.IsolatedAsyncioTestCase):
     async def test_risk_assessment_workflow(self):
         agent_registry = AgentRegistry()
         task_queue = asyncio.Queue()

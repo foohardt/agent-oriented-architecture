@@ -15,7 +15,7 @@ from knowledge import KnowledgeBase
 from models import DebtorProfile, InstallmentPlan
 
 
-class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
+class TestInstallmentPlan(unittest.IsolatedAsyncioTestCase):
     async def test_installment_plan_workflow(self):
         agent_registry = AgentRegistry()
         task_queue = asyncio.Queue()
@@ -50,7 +50,7 @@ class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
             ),
             agent_registry,
         )
-        installment_agent.reason = AsyncMock(
+        installment_agent.reason_structured = AsyncMock(
             return_value={
                 "action": "contact_debtor",
                 "installment_plan": InstallmentPlan(
@@ -70,7 +70,7 @@ class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
             ),
             agent_registry,
         )
-        communication_agent.reason = AsyncMock(
+        communication_agent.reason_unstructured = AsyncMock(
             return_value="This is a mocked debtor contact message."
         )
 
@@ -95,8 +95,8 @@ class TestEscalationWorkflow(unittest.IsolatedAsyncioTestCase):
 
         await asyncio.sleep(2)
 
-        installment_agent.reason.assert_awaited_once()
-        communication_agent.reason.assert_awaited_once()
+        installment_agent.reason_structured.assert_called_once()
+        communication_agent.reason_unstructured.assert_awaited_once()
 
         for task in agent_tasks:
             task.cancel()

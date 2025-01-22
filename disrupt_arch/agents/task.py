@@ -1,7 +1,6 @@
 import logging
 from asyncio import Queue
 
-from config import openai_client
 from knowledge import KnowledgeBase
 from models import DebtorProfile, NextBestAction
 
@@ -20,12 +19,16 @@ class TaskAgent(CognitiveAgent):
         super().__init__(name, queue, knowledge_base)
         self.agent_registry = agent_registry
         self.agent_registry.register("next_action", queue)
+        self.task = "Your task is to evaluate debtor information and determine the next best action based on the provided business rules."
 
     async def process_message(self, entity: DebtorProfile):
-        logging.info(f"{self.name} received profile: {entity}")
-        rules = await self.retrieve(entity)
+        logging.info(f"{self.name} received message: {entity}")
+        business_rules = await self.retrieve(entity)
 
-        next_action = await self.reason(entity, rules)
+        content = f"debtor profile: {entity}, business rules: {business_rules}"
+        next_action = await self.reason_structured(
+            content=content, response_format=NextBestAction, task=self.task
+        )
         logging.info(f"{self.name} decided next action: {next_action}")
 
         target_queues = self.agent_registry.get_agents_for_task(next_action.action)
@@ -40,27 +43,3 @@ class TaskAgent(CognitiveAgent):
             return rules
         except Exception as e:
             logging.error(f"Error retrieving business rules: {e}")
-
-    async def reason(self, entity: DebtorProfile, rules):
-        prompt = f"""
-        debtor profile: {entity},
-        rules: {rules}
-        """
-        try:
-            completion = openai_client.beta.chat.completions.parse(
-                model="gpt-4o-2024-08-06",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a debt collection assistant. Your task is to evaluate debtor information and determine the next best action by reasoning based on the provided business rules.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                response_format=NextBestAction,
-            )
-
-            next_action = completion.choices[0].message.parsed
-
-            return next_action
-        except Exception as e:
-            logging.error(f"Error reasoning next best action: {e}")
