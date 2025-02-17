@@ -28,7 +28,8 @@ This model ensures that **agents dynamically negotiate, execute tasks efficientl
 
 ---
 
-## Installation & Setup  
+## Installation & Setup (WIP) 
+
 ### **Prerequisites**  
 Ensure you have the following installed before running the system:  
 - Python **(=3.12)**  
@@ -40,8 +41,6 @@ Ensure you have the following installed before running the system:
 
 ## Usage
 1. Start Chroma: `sudo docker run -d -p 8000:8000 chromadb/chroma`
-2. Start system with default data
-
 
 ## Testing
 
@@ -49,24 +48,6 @@ Ensure you have the following installed before running the system:
 
 ### Integration Testing
 `poetry run pytest disrupt_arch/tests/integration/test_escalation_workflow.py --log-cli-level=INFO`
-
-### Testing
-
-## Challenges & Limitations
-
-
-
-While AOA demonstrates scalability and adaptability, its implementation presents challenges:
-
-    Debugging & Observability: The decentralized nature complicates workflow monitoring.
-    Computational Overhead: Increased agent communication may introduce latency.
-    Explainability of Decisions: Probabilistic reasoning mechanisms require improved transparency.
-
-Future improvements will focus on optimizing message exchanges, enhancing debugging tools, and integrating hybrid deterministic reasoning models.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
 
 ## Contact
 
