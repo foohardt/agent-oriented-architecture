@@ -6,7 +6,6 @@ from chromadb.utils import embedding_functions
 from config import chroma_client
 from knowledge import KnowledgeBase
 
-
 class TestConcurrentWorkflows(IsolatedAsyncioTestCase):
     async def test_concurrent_workflows(self):
         task_queue = asyncio.Queue()
@@ -30,12 +29,13 @@ class TestConcurrentWorkflows(IsolatedAsyncioTestCase):
             "RiskAssessmentAgent", risk_queue, agent_registry
         )
 
-        profiles = [
+        samples = [
             {"name": "John Doe", "risk_level": None, "overdue_days": 120},
             {"name": "Jane Smith", "risk_level": None, "overdue_days": 90},
         ]
-        for profile in profiles:
-            await task_queue.put(profile)
+
+        for sample in samples:
+            await task_queue.put(sample)
 
         agents = [
             asyncio.create_task(task_agent.run()),
