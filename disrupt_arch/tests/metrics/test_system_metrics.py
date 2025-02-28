@@ -25,7 +25,7 @@ async def test_multiple_sample_sizes():
     """
     Runs the test with multiple sample sizes and stores results.
     """
-    sample_sizes = [5, 10, 25, 50, 100]
+    sample_sizes = [5, 10, 25, 50, 100, 200]
 
     output_dir = "disrupt_arch/tests/metrics/results"
     os.makedirs(output_dir, exist_ok=True)
