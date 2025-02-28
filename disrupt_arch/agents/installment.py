@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from knowledge import KnowledgeBase
@@ -21,15 +22,22 @@ class InstallmentPlanAgent(CognitiveAgent):
             logging.info(f"{self.name} received message: {entity}")
             business_rules = await self.retrieve()
             content = f"debtor profile: {entity}, business rules: {business_rules}"
-            result = await self.reason_structured(
-                content=content, response_format=InstallmentPlan, task=self.task
+
+            reasoning_task = asyncio.create_task(
+                self.reason_structured(
+                    content=content, response_format=InstallmentPlan, task=self.task
+                )
             )
+
+            result = await reasoning_task
+
             logging.info(
                 f"{self.name} created installment plan for {entity.name}: {result}"
             )
 
             target_queues = self.agent_registry.get_agents_for_task("contact_debtor")
-            await self.publish_message(target_queues, entity)
+            asyncio.create_task(self.publish_message(target_queues, entity))
+
         except Exception as e:
             logging.error(f"{self.name} encountered an exception: {e}")
 

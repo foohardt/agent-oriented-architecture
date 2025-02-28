@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from asyncio import Queue
 
@@ -23,16 +24,23 @@ class TaskAgent(CognitiveAgent):
 
     async def process_message(self, entity: DebtorProfile):
         logging.info(f"{self.name} received message: {entity}")
+
         business_rules = await self.retrieve(entity)
 
-        content = f"debtor profile: {entity}, business rules: {business_rules}"
-        next_action = await self.reason_structured(
-            content=content, response_format=NextBestAction, task=self.task
+        reasoning_task = asyncio.create_task(
+            self.reason_structured(
+                content=f"debtor profile: {entity}, business rules: {business_rules}",
+                response_format=NextBestAction,
+                task=self.task,
+            )
         )
+
+        next_action = await reasoning_task
+
         logging.info(f"{self.name} decided next action: {next_action}")
 
         target_queues = self.agent_registry.get_agents_for_task(next_action.action)
-        await self.publish_message(target_queues, entity)
+        asyncio.create_task(self.publish_message(target_queues, entity))
 
     async def retrieve(self, entity: DebtorProfile):
         try:

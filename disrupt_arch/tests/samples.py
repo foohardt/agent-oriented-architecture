@@ -1,7 +1,9 @@
 import random
-from models import DebtorProfile, CommunicationState
 
-def generate_samples(num_samples=10):
+from models import CommunicationState, DebtorProfile
+
+
+def generate_samples(num_samples=10) -> list[DebtorProfile]:
     """
     Generate synthetic sample profiles with only essential fields initialized.
 
@@ -28,7 +30,7 @@ def generate_samples(num_samples=10):
             outstanding_balance=outstanding_balance,
             overdue_days=overdue_days,
             risk_level=None,
-            installment_plan=None
+            installment_plan=None,
         )
 
         samples.append(sample_profile)

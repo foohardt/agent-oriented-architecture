@@ -1,11 +1,11 @@
 import asyncio
-import pytest
-import time
 import csv
 import os
-import matplotlib.pyplot as plt
+import time
 from unittest.mock import AsyncMock
 
+import matplotlib.pyplot as plt
+import pytest
 from agents import (
     AgentRegistry,
     CommunicationAgent,
@@ -25,19 +25,28 @@ async def test_multiple_sample_sizes():
     """
     Runs the test with multiple sample sizes and stores results.
     """
-    sample_sizes = [5, 10, 25, 50, 100]  
+    sample_sizes = [5, 10, 25, 50, 100]
+
     output_dir = "disrupt_arch/tests/metrics/results"
     os.makedirs(output_dir, exist_ok=True)
     csv_file = os.path.join(output_dir, "test_results.csv")
 
-    csv_headers = ["Run", "Num Samples", "Execution Time", "Throughput", "Communication Overhead", "Average Latency", "Task Balance"]
+    csv_headers = [
+        "Run",
+        "Num Samples",
+        "Execution Time",
+        "Throughput",
+        "Communication Overhead",
+        "Average Latency",
+        "Task Balance",
+    ]
     if not os.path.exists(csv_file):
         with open(csv_file, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(csv_headers)
 
     metric_logs = []
-    
+
     for num_samples in sample_sizes:
         metric_log = await run_performance_test(num_samples, csv_file)
         metric_logs.append(metric_log)
@@ -66,7 +75,11 @@ async def run_performance_test(num_samples, csv_file):
         ),
         agent_registry,
     )
-    risk_assessment_agent = RiskAssessmentAgent("RiskAssessmentAgent", risk_queue, agent_registry)
+
+    risk_assessment_agent = RiskAssessmentAgent(
+        "RiskAssessmentAgent", risk_queue, agent_registry
+    )
+
     installment_agent = InstallmentPlanAgent(
         "InstallmentPlanAgent",
         installment_plan_queue,
@@ -100,10 +113,9 @@ async def run_performance_test(num_samples, csv_file):
         return_value="This is a mocked debtor contact message."
     )
 
-    test_profiles = generate_samples(num_samples=num_samples)
+    sample_profiles = generate_samples(num_samples=num_samples)
 
     start_time = time.time()
-    messages_sent = 0
     task_count = 0
     decision_timestamps = {}
     execution_timestamps = {}
@@ -115,30 +127,57 @@ async def run_performance_test(num_samples, csv_file):
         asyncio.create_task(communication_agent.run()),
     ]
 
-    for profile in test_profiles:
+    for profile in sample_profiles:
+        await task_queue.put(profile)
+        task_count += 1
+        decision_timestamps[profile.name] = time.time()
+
+    for profile in sample_profiles:
         await task_queue.put(profile)
         task_count += 1
         decision_timestamps[profile.name] = time.time()
 
     await asyncio.sleep(5)
 
-    for profile in test_profiles:
-        if installment_agent.reason_structured.awaited:
+    for profile in sample_profiles:
+        if profile.name in decision_timestamps:
             execution_timestamps[profile.name] = time.time()
-            messages_sent += 1
 
-    for task in agent_tasks:
-        task.cancel()
-    await asyncio.gather(*agent_tasks, return_exceptions=True)
+    messages_sent = (
+        communication_queue.qsize()
+        + risk_queue.qsize()
+        + installment_plan_queue.qsize()
+    )
+
+    latencies = [
+        execution_timestamps[name] - decision_timestamps[name]
+        for name in decision_timestamps
+        if name in execution_timestamps
+    ]
+
+    latencies = [
+        execution_timestamps[name] - decision_timestamps[name]
+        for name in execution_timestamps
+        if name in decision_timestamps
+    ]
+
+    avg_latency = sum(latencies) / len(latencies) if latencies else 0
+
+    agent_workloads = [
+        task_queue.qsize(),
+        risk_queue.qsize(),
+        installment_plan_queue.qsize(),
+        communication_queue.qsize(),
+    ]
+    task_distribution_balance = (
+        sum(agent_workloads) / len(agent_workloads) if agent_workloads else 0
+    )
 
     end_time = time.time()
-
     execution_time = end_time - start_time
     throughput = task_count / execution_time
+
     communication_overhead = messages_sent / task_count if task_count else 0
-    latencies = [execution_timestamps[name] - decision_timestamps[name] for name in execution_timestamps]
-    avg_latency = sum(latencies) / len(latencies) if latencies else 0
-    task_distribution_balance = sum([task_count / len(agent_tasks)]) / len(agent_tasks) if agent_tasks else 0
 
     metric_log = {
         "run": num_samples,
@@ -147,12 +186,16 @@ async def run_performance_test(num_samples, csv_file):
         "throughput": throughput,
         "communication_overhead": communication_overhead,
         "avg_latency": avg_latency,
-        "task_distribution_balance": task_distribution_balance
+        "task_distribution_balance": task_distribution_balance,
     }
 
     with open(csv_file, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(metric_log.values())
+
+    for task in agent_tasks:
+        task.cancel()
+    await asyncio.gather(*agent_tasks, return_exceptions=True)
 
     return metric_log
 
@@ -166,11 +209,15 @@ def plot_metrics(metric_logs, output_dir):
     throughputs = [m["throughput"] for m in metric_logs]
     communication_overheads = [m["communication_overhead"] for m in metric_logs]
     latencies = [m["avg_latency"] for m in metric_logs]
-    task_balances = [m["task_distribution_balance"] for m in metric_logs]  # ✅ Now correctly referenced!
+    task_balances = [
+        m["task_distribution_balance"] for m in metric_logs
+    ]  # ✅ Now correctly referenced!
 
     # Execution Time vs Sample Size
     plt.figure(figsize=(10, 5))
-    plt.plot(sample_sizes, execution_times, marker='o', linestyle='-', label="Execution Time")
+    plt.plot(
+        sample_sizes, execution_times, marker="o", linestyle="-", label="Execution Time"
+    )
     plt.xlabel("Number of Samples")
     plt.ylabel("Time (seconds)")
     plt.title("Execution Time vs Sample Size")
@@ -180,7 +227,14 @@ def plot_metrics(metric_logs, output_dir):
 
     # Throughput vs Sample Size
     plt.figure(figsize=(10, 5))
-    plt.plot(sample_sizes, throughputs, marker='o', linestyle='-', color='r', label="Throughput")
+    plt.plot(
+        sample_sizes,
+        throughputs,
+        marker="o",
+        linestyle="-",
+        color="r",
+        label="Throughput",
+    )
     plt.xlabel("Number of Samples")
     plt.ylabel("Throughput (tasks/sec)")
     plt.title("Throughput vs Sample Size")
@@ -190,7 +244,14 @@ def plot_metrics(metric_logs, output_dir):
 
     # Communication Overhead vs Sample Size
     plt.figure(figsize=(10, 5))
-    plt.plot(sample_sizes, communication_overheads, marker='o', linestyle='-', color='g', label="Comm Overhead")
+    plt.plot(
+        sample_sizes,
+        communication_overheads,
+        marker="o",
+        linestyle="-",
+        color="g",
+        label="Comm Overhead",
+    )
     plt.xlabel("Number of Samples")
     plt.ylabel("Messages per Task")
     plt.title("Communication Overhead vs Sample Size")
@@ -200,7 +261,14 @@ def plot_metrics(metric_logs, output_dir):
 
     # Latency vs Sample Size
     plt.figure(figsize=(10, 5))
-    plt.plot(sample_sizes, latencies, marker='o', linestyle='-', color='purple', label="Avg Latency")
+    plt.plot(
+        sample_sizes,
+        latencies,
+        marker="o",
+        linestyle="-",
+        color="purple",
+        label="Avg Latency",
+    )
     plt.xlabel("Number of Samples")
     plt.ylabel("Latency (seconds)")
     plt.title("Latency vs Sample Size")
@@ -210,7 +278,14 @@ def plot_metrics(metric_logs, output_dir):
 
     # Task Distribution Balance vs Sample Size
     plt.figure(figsize=(10, 5))
-    plt.plot(sample_sizes, task_balances, marker='o', linestyle='-', color='blue', label="Task Balance")
+    plt.plot(
+        sample_sizes,
+        task_balances,
+        marker="o",
+        linestyle="-",
+        color="blue",
+        label="Task Balance",
+    )
     plt.xlabel("Number of Samples")
     plt.ylabel("Task Distribution Balance")
     plt.title("Task Distribution Balance vs Sample Size")
