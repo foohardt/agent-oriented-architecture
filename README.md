@@ -13,10 +13,10 @@ This project serves as an experimental framework for testing scalability, adapta
 
 ## Architecture
 
-The implementation is structured around the **AOA**.
-
-WIP
-
+### Agent-Oriented Architecture
+![Agent-Oriented Architecture](agent_oriented_architecture.png)  
+### Cognitive Agent
+![Cognitive Agent](cognitive_agent.png)  
 ## Setup & Usage
 
 ### Prerequisites
