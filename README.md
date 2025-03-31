@@ -13,10 +13,20 @@ This project serves as an experimental framework for testing scalability, adapta
 
 ## Architecture
 
+This project explores how intelligent systems can be designed using the principles of Agent-Oriented Architecture (AOA). At its core, this approach relies on distributed, autonomous agents. Each capable of reasoning and acting independently. This sections briefly descrives the system-level architecture and the internal design of cognitive agents.
+
 ### Agent-Oriented Architecture
+
+Agent-Oriented Architecture (AOA) is an architecture design pattern for building intelligent software systems composed of autonomous, intelligent agents that interact with eacht other and their environment. It emphasizes decentralized coordination, emergent behavior, and flexible interaction patterns across system components—enabling scalability, adaptability, and resilience in complex environments.
+
 ![Agent-Oriented Architecture](agent_oriented_architecture.png)  
+
 ### Cognitive Agent
+
+Cognitive agents form the backbone of Agent-Oriented Architecture. Their internal structure includes components for perception, reasoning, decision-making, and action. These agents operate autonomously, continuously processing information and adapting their behavior in response to dynamic and uncertain conditions.
+
 ![Cognitive Agent](cognitive_agent.png)  
+
 ## Setup & Usage
 
 ### Prerequisites
