@@ -211,7 +211,7 @@ def plot_metrics(metric_logs, output_dir):
     latencies = [m["avg_latency"] for m in metric_logs]
     task_balances = [
         m["task_distribution_balance"] for m in metric_logs
-    ]  # ✅ Now correctly referenced!
+    ]
 
     # Execution Time vs Sample Size
     plt.figure(figsize=(10, 5))
